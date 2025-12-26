@@ -5,7 +5,9 @@ WORKDIR /app
 # Copia solo archivos necesarios (respetando .dockerignore)
 COPY . /app
 
-EXPOSE 3000
+# Usa la variable PORT de Cloud Run (por defecto 8081)
+ENV PORT=8081
+EXPOSE 8081
 
-# Usa el comando por defecto de la imagen base
-CMD ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
+# Script de inicio que ejecuta migraciones y arranca el servidor
+CMD ["sh", "-c", "bundle exec rails db:chatwoot_prepare && bundle exec rails s -p ${PORT} -b 0.0.0.0"]

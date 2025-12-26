@@ -1,0 +1,60 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/chatwootcea:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/chatwootcea:latest'
+      - '.'
+    timeout: 1200s
+
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/chatwootcea:$COMMIT_SHA'
+
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'chatwootcea'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/chatwootcea:$COMMIT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--port'
+      - '8080'
+      - '--timeout'
+      - '300'
+      - '--memory'
+      - '2Gi'
+      - '--cpu'
+      - '2'
+      - '--min-instances'
+      - '1'
+      - '--max-instances'
+      - '10'
+      # Variables de entorno críticas (el resto se configuran en la consola o con --set-env-vars)
+      - '--set-env-vars'
+      - 'RAILS_ENV=production,RAILS_LOG_TO_STDOUT=true,PORT=8080'
+      # Si usas Cloud SQL, agrega:
+      # - '--add-cloudsql-instances'
+      # - 'clever-obelisk-277705:us-central1:TU-INSTANCIA-SQL'
+
+images:
+  - 'gcr.io/$PROJECT_ID/chatwootcea:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/chatwootcea:latest'
+
+timeout: 1800s
+
+options:
+  machineType: 'E2_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
