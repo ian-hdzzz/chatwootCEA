@@ -42,9 +42,10 @@ steps:
       - '1'
       - '--max-instances'
       - '10'
-      # Variables de entorno críticas (el resto se configuran en la consola o con --set-env-vars)
+      # Variables de entorno críticas - asegurarse que PORT coincida con --port
       - '--set-env-vars'
-      - 'RAILS_ENV=production,RAILS_LOG_TO_STDOUT=true,PORT=8080'
+      - 'RAILS_ENV=production,RAILS_LOG_TO_STDOUT=true'
+      # Cloud Run automáticamente inyecta PORT=8080
       # Si usas Cloud SQL, agrega:
       # - '--add-cloudsql-instances'
       # - 'clever-obelisk-277705:us-central1:TU-INSTANCIA-SQL'
