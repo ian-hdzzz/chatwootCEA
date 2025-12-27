@@ -21,19 +21,15 @@ Rails.application.config.content_security_policy do |policy|
   policy.connect_src *policy.connect_src, "ws://#{ ViteRuby.config.host_with_port }" if Rails.env.development?
 
   # Configuración de frame-ancestors para permitir embedding
-  # Puedes configurar dominios específicos mediante variable de entorno
-  allowed_frame_ancestors = ENV.fetch('ALLOWED_FRAME_ANCESTORS', '').split(',').map(&:strip)
-  
-  if Rails.env.development? || allowed_frame_ancestors.include?('*')
-    # En desarrollo o si se especifica *, permitir todos los dominios
-    # NOTA: Esto es inseguro para producción, usa solo para testing
-    policy.frame_ancestors :self, :https, :http, 'http://localhost:*', 'http://127.0.0.1:*'
-  elsif allowed_frame_ancestors.any?
-    # Usar dominios específicos de la variable de entorno
-    policy.frame_ancestors :self, *allowed_frame_ancestors
+  if Rails.env.development?
+    # En desarrollo, permitir TODOS los dominios para facilitar testing
+    policy.frame_ancestors :self, :https, :http, 'http://*', 'https://*'
   else
-    # Por defecto, solo permitir mismo origen
-    policy.frame_ancestors :self
+    # En producción, solo dominios específicos
+    policy.frame_ancestors :self,
+                           'https://chatwoot.fitcluv.com',
+                           'https://fitcluv.com',
+                           'https://www.fitcluv.com'
   end
 
   # Specify URI for violation reports
