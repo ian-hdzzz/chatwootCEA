@@ -45,31 +45,29 @@ gcloud services enable \
   secretmanager.googleapis.com
 ```
 
-## 3. Network Configuration (Required for Redis & DB)
+## 3. Network Configuration
 
-Chatwoot requires Redis and Postgres. We need a VPC connector for Cloud Run to talk to them.
-
-```bash
-# Create a VPC Connector
-gcloud compute networks vpc-access connectors create chatwoot-connector \
-  --region=$REGION \
-  --range=10.8.0.0/28
-```
+**Skipped** (Using "No VPC" strategy with external Redis).
 
 ## 4. Create Resources
 
-### 4.1 Create Redis (Memorystore)
+### 4.1 Create External Redis
 
-```bash
-gcloud redis instances create $REDIS_NAME \
-  --size=1 \
-  --region=$REGION \
-  --redis-version=redis_6_x
-```
+Since we are avoiding VPC, you must use an external Redis provider accessible over the public internet (with a password).
 
-*Note: Save the IP address output from this command.*
+**Recommended Providers (Free Tiers available):**
+- [Upstash Redis](https://upstash.com/)
+- [Redis Cloud](https://redis.com/try-free/)
+- [Aiven for Redis](https://aiven.io/redis)
+
+1. Create a database with one of these providers.
+2. Get the **Connection String** (starts with `rediss://...` or `redis://...`).
+3. You will put this in your `env.yaml` later.
 
 ### 4.2 Create PostgreSQL (Cloud SQL)
+
+Cloud SQL can also be accessed via public IP (secured by Auth Proxy, which Cloud Run handles automatically, or by whitelisting IPs).
+
 
 ```bash
 # Create the instance
@@ -122,7 +120,7 @@ POSTGRES_HOST: "/cloudsql/YOUR_PROJECT_ID:$REGION:$DB_INSTANCE_NAME"
 POSTGRES_USERNAME: "chatwoot_user"
 POSTGRES_PASSWORD: "YOUR_SECURE_PASSWORD"
 POSTGRES_DATABASE: "chatwoot_production"
-REDIS_URL: "redis://YOUR_REDIS_IP:6379"
+REDIS_URL: "rediss://default:password@your-redis-instance.upstash.io:6379"
 ```
 
 2. Run the migration job:
@@ -131,13 +129,13 @@ REDIS_URL: "redis://YOUR_REDIS_IP:6379"
 gcloud run jobs create migrate-chatwoot \
   --image=$REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$SERVICE_NAME:latest \
   --region=$REGION \
-  --vpc-connector=chatwoot-connector \
   --set-cloudsql-instances=$PROJECT_ID:$REGION:$DB_INSTANCE_NAME \
   --env-vars-file=env.yaml \
   --command="bundle,exec,rails,db:chatwoot_prepare"
 
 gcloud run jobs execute migrate-chatwoot --region=$REGION
 ```
+
 
 ## 7. Deploy Service
 
@@ -146,7 +144,6 @@ gcloud run deploy $SERVICE_NAME \
   --image=$REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$SERVICE_NAME:latest \
   --region=$REGION \
   --allow-unauthenticated \
-  --vpc-connector=chatwoot-connector \
   --set-cloudsql-instances=$PROJECT_ID:$REGION:$DB_INSTANCE_NAME \
   --env-vars-file=env.yaml \
   --port=8080 \
@@ -157,6 +154,11 @@ gcloud run deploy $SERVICE_NAME \
 ## 8. Final Configuration
 
 After deployment, update the `FRONTEND_URL` in your `env.yaml` or directly on the service with the URL Cloud Run assigned to you.
+```bash
+gcloud run services update $SERVICE_NAME \
+  --region=$REGION \
+  --env-vars-file=env.yaml
+```
 
 
 ## 9. Alternative: Deploy automatically from GitHub
