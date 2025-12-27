@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatwoot Embed - Prueba de Integración</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .info {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .config-form {
+            background: #f7f7f7;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input[type="text"], input[type="url"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+        }
+        
+        .test-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .test-sections {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .test-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .test-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .iframe-container {
+            border: 2px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f9f9f9;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+        }
+        
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .widget-container {
+            position: relative;
+            min-height: 400px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            color: #856404;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Chatwoot Embed - Página de Prueba</h1>
+            <p class="info">
+                Esta página te permite probar la integración de Chatwoot mediante iframe y SDK.
+                Úsala para verificar que tu configuración de CSP y CORS está correcta.
+            </p>
+            
+            <div class="instructions">
+                <h3>📋 Instrucciones Rápidas:</h3>
+                <ol>
+                    <li>Ingresa la URL de tu Chatwoot y el Website Token abajo</li>
+                    <li>Haz clic en "Cargar Widget"</li>
+                    <li>Si ves errores en la consola (F12), revisa la configuración de ALLOWED_FRAME_ANCESTORS</li>
+                    <li>Verifica que Chatwoot esté corriendo en la URL especificada</li>
+                </ol>
+            </div>
+            
+            <div class="config-form">
+                <div class="form-group">
+                    <label for="chatwoot-url">URL de Chatwoot:</label>
+                    <input 
+                        type="url" 
+                        id="chatwoot-url" 
+                        placeholder="http://localhost:3000" 
+                        value="http://localhost:3000"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="website-token">Website Token:</label>
+                    <input 
+                        type="text" 
+                        id="website-token" 
+                        placeholder="ej: xyzABC123..."
+                        value=""
+                    >
+                    <small style="color: #666;">Lo encuentras en Settings → Inboxes → [Tu Widget] → Configuration</small>
+                </div>
+                
+                <button onclick="loadWidget()">🚀 Cargar Widget</button>
+            </div>
+        </div>
+        
+        <div class="test-sections">
+            <!-- Test 1: Iframe directo -->
+            <div class="test-section">
+                <h2>1️⃣ Test Iframe Directo</h2>
+                <p style="color: #666; margin-bottom: 10px;">
+                    Iframe básico apuntando directamente al widget
+                </p>
+                <div class="iframe-container">
+                    <iframe id="iframe-test" src="" title="Chatwoot Widget Iframe"></iframe>
+                </div>
+                <div id="iframe-status" class="status info">
+                    ⏳ Esperando configuración...
+                </div>
+            </div>
+            
+            <!-- Test 2: SDK Widget -->
+            <div class="test-section">
+                <h2>2️⃣ Test SDK Widget</h2>
+                <p style="color: #666; margin-bottom: 10px;">
+                    Widget usando el SDK oficial de Chatwoot
+                </p>
+                <div class="widget-container" id="widget-container">
+                    <div style="text-align: center; padding: 50px; color: #999;">
+                        El widget del chat aparecerá en la esquina inferior derecha →
+                    </div>
+                </div>
+                <div id="sdk-status" class="status info">
+                    ⏳ Esperando configuración...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentBaseUrl = '';
+        let currentToken = '';
+        
+        function loadWidget() {
+            const baseUrl = document.getElementById('chatwoot-url').value.trim();
+            const websiteToken = document.getElementById('website-token').value.trim();
+            
+            if (!baseUrl) {
+                alert('Por favor ingresa la URL de Chatwoot');
+                return;
+            }
+            
+            if (!websiteToken) {
+                alert('Por favor ingresa el Website Token');
+                return;
+            }
+            
+            currentBaseUrl = baseUrl;
+            currentToken = websiteToken;
+            
+            // Cargar iframe test
+            loadIframeTest(baseUrl, websiteToken);
+            
+            // Cargar SDK test
+            loadSDKTest(baseUrl, websiteToken);
+        }
+        
+        function loadIframeTest(baseUrl, websiteToken) {
+            const iframe = document.getElementById('iframe-test');
+            const status = document.getElementById('iframe-status');
+            
+            status.className = 'status info';
+            status.innerHTML = '⏳ Cargando iframe...';
+            
+            const iframeUrl = `${baseUrl}/widget?website_token=${websiteToken}`;
+            iframe.src = iframeUrl;
+            
+            // Timeout para detectar si carga
+            setTimeout(() => {
+                try {
+                    // Intentar acceder al iframe
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (iframeDoc) {
+                        status.className = 'status success';
+                        status.innerHTML = '✅ Iframe cargado correctamente';
+                    }
+                } catch (e) {
+                    // Error de CORS/CSP
+                    console.error('Error al cargar iframe:', e);
+                    status.className = 'status error';
+                    status.innerHTML = `
+                        ❌ Posible error de CSP/CORS<br>
+                        <small>Abre la consola (F12) para ver detalles. 
+                        Verifica ALLOWED_FRAME_ANCESTORS en tu .env</small>
+                    `;
+                }
+            }, 2000);
+            
+            iframe.onerror = function() {
+                status.className = 'status error';
+                status.innerHTML = '❌ Error al cargar iframe. Verifica la URL y token.';
+            };
+        }
+        
+        function loadSDKTest(baseUrl, websiteToken) {
+            const status = document.getElementById('sdk-status');
+            
+            status.className = 'status info';
+            status.innerHTML = '⏳ Cargando SDK...';
+            
+            // Limpiar SDK anterior si existe
+            if (window.chatwootSDK) {
+                delete window.chatwootSDK;
+                delete window.$chatwoot;
+            }
+            
+            // Remover script anterior
+            const oldScript = document.getElementById('chatwoot-sdk-script');
+            if (oldScript) {
+                oldScript.remove();
+            }
+            
+            // Cargar SDK
+            (function(d, t) {
+                var script = d.createElement(t);
+                script.id = 'chatwoot-sdk-script';
+                script.src = baseUrl + "/packs/js/sdk.js";
+                script.defer = true;
+                script.async = true;
+                
+                script.onload = function() {
+                    try {
+                        window.chatwootSDK.run({
+                            websiteToken: websiteToken,
+                            baseUrl: baseUrl
+                        });
+                        
+                        status.className = 'status success';
+                        status.innerHTML = '✅ SDK cargado. El widget debe aparecer en la esquina inferior derecha.';
+                    } catch (e) {
+                        console.error('Error al inicializar SDK:', e);
+                        status.className = 'status error';
+                        status.innerHTML = `❌ Error al inicializar SDK: ${e.message}`;
+                    }
+                };
+                
+                script.onerror = function() {
+                    status.className = 'status error';
+                    status.innerHTML = '❌ Error al cargar SDK. Verifica la URL de Chatwoot.';
+                };
+                
+                d.getElementsByTagName(t)[0].parentNode.appendChild(script);
+            })(document, "script");
+        }
+        
+        // Detectar errores CSP
+        window.addEventListener('securitypolicyviolation', (e) => {
+            console.error('CSP Violation:', e);
+            alert(`
+                ⚠️ Violación de Content Security Policy detectada!
+                
+                Directiva: ${e.violatedDirective}
+                Bloqueado: ${e.blockedURI}
+                
+                Verifica tu configuración de ALLOWED_FRAME_ANCESTORS en Chatwoot.
+                Abre la consola (F12) para más detalles.
+            `);
+        });
+        
+        // Mostrar info en consola
+        console.log(`
+%c🔧 Chatwoot Embed Test Page
+
+%cPara debuggear:
+1. Revisa errores de CSP/CORS aquí en la consola
+2. Verifica que Chatwoot esté corriendo en la URL especificada
+3. Asegúrate que ALLOWED_FRAME_ANCESTORS incluya: ${window.location.origin}
+4. Revisa el archivo .env en Chatwoot
+
+%cVariables actuales:
+- Origin: ${window.location.origin}
+- Host: ${window.location.host}
+        `, 
+        'color: #667eea; font-size: 16px; font-weight: bold;',
+        'color: #333;',
+        'color: #666;'
+        );
+    </script>
+</body>
+</html>
