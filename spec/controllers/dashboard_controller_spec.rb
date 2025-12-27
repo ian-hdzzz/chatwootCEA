@@ -39,4 +39,20 @@ describe '/app/login', type: :request do
       Rails.application.reload_routes!
     end
   end
+  context 'with DASHBOARD_ALLOWED_ORIGINS' do
+    it 'allows iframe embedding from allowed origins' do
+      with_modified_env DASHBOARD_ALLOWED_ORIGINS: 'https://example.com' do
+        get '/app/login'
+        expect(response.headers['X-Frame-Options']).to be_nil
+        expect(response.headers['Content-Security-Policy']).to include "frame-ancestors https://example.com"
+      end
+    end
+
+    it 'does not allow iframe embedding if var is missing' do
+      get '/app/login'
+      # X-Frame-Options should be present (SAMEORIGIN usually default in Rails)
+      expect(response.headers['X-Frame-Options']).to be_present
+      expect(response.headers['Content-Security-Policy']).not_to include "frame-ancestors"
+    end
+  end
 end
