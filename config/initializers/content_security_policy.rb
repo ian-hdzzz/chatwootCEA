@@ -20,17 +20,10 @@ Rails.application.config.content_security_policy do |policy|
   # Allow @vite/client to hot reload changes in development
   policy.connect_src *policy.connect_src, "ws://#{ ViteRuby.config.host_with_port }" if Rails.env.development?
 
-  # Configuración de frame-ancestors para permitir embedding
-  if Rails.env.development?
-    # En desarrollo, permitir TODOS los dominios para facilitar testing
-    policy.frame_ancestors :self, :https, :http, 'http://*', 'https://*'
-  else
-    # En producción, solo dominios específicos
-    policy.frame_ancestors :self,
-                           'https://chatwoot.fitcluv.com',
-                           'https://fitcluv.com',
-                           'https://www.fitcluv.com'
-  end
+  # Configuración de frame-ancestors - PERMITIR TODOS LOS DOMINIOS
+  # ⚠️ ADVERTENCIA: Esto permite que cualquier sitio web embeda tu Chatwoot en un iframe
+  # Para uso temporal mientras se resuelven problemas de embedding
+  policy.frame_ancestors :self, :https, :http, 'http://*', 'https://*'
 
   # Specify URI for violation reports
   # policy.report_uri "/csp-violation-report-endpoint"
