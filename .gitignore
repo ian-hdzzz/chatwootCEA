@@ -33,7 +33,7 @@ master.key
 .env.development
 .env.test
 env.yaml
-
+env.worker.yaml
 public/uploads
 public/packs*
 public/assets/administrate*

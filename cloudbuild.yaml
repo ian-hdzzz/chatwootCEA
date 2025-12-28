@@ -21,7 +21,7 @@ steps:
       - 'push'
       - '$_REGION-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/$_SERVICE_NAME:latest'
 
-  # Deploy container image to Cloud Run
+  # Deploy container image to Cloud Run (Web Server)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -47,9 +47,37 @@ steps:
       - '0'
       - '--max-instances'
       - '10'
-      # IMPORTANT: Explicitly set PORT=8080
       - '--update-env-vars'
-      - 'RAILS_ENV=production,RAILS_LOG_TO_STDOUT=true,PORT=8080'
+      - 'RAILS_ENV=production,RAILS_LOG_TO_STDOUT=true,PORT=8080,CHATWOOT_MODE=web'
+
+  # Deploy Sidekiq worker to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - '$_WORKER_SERVICE_NAME'
+      - '--image'
+      - '$_REGION-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+      - '--region'
+      - '$_REGION'
+      - '--platform'
+      - 'managed'
+      - '--no-allow-unauthenticated'
+      - '--port'
+      - '8080'
+      - '--timeout'
+      - '300'
+      - '--memory'
+      - '1Gi'
+      - '--cpu'
+      - '1'
+      - '--min-instances'
+      - '1'
+      - '--max-instances'
+      - '3'
+      - '--update-env-vars'
+      - 'RAILS_ENV=production,RAILS_LOG_TO_STDOUT=true,CHATWOOT_MODE=worker'
 
 images:
   - '$_REGION-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
@@ -64,5 +92,5 @@ options:
 substitutions:
   _REGION: us-central1
   _SERVICE_NAME: chatwoot-cea
+  _WORKER_SERVICE_NAME: chatwoot-worker
   _REPO_NAME: chatwoot-repo
-
