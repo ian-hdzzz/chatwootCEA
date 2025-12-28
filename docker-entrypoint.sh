@@ -7,11 +7,14 @@ echo "PORT: $PORT"
 if [ "$CHATWOOT_MODE" = "worker" ]; then
   echo "Starting Sidekiq worker with health check server..."
   
-  # Start a minimal health check server in the background
-  # This responds to Cloud Run health checks on the configured PORT
-  while true; do
-    echo -e "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK" | nc -l -p "$PORT" -q 1 2>/dev/null || true
-  done &
+  # Start a minimal health check server in the background using Ruby
+  # This is more reliable than netcat and Ruby is already available
+  ruby -run -e httpd /dev/null -p "$PORT" &
+  HEALTH_PID=$!
+  echo "Health check server started on port $PORT (PID: $HEALTH_PID)"
+  
+  # Give the health server a moment to start
+  sleep 2
   
   # Start Sidekiq as the main process
   exec bundle exec sidekiq -C config/sidekiq.yml
