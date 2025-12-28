@@ -17,13 +17,12 @@ Set these variables at the start of your session to use throughout the commands.
 
 ```bash
 # REPLACE THESE WITH YOUR VALUES
-export PROJECT_ID="clever-obelisk-277705"       # The GCP Project ID
-export REGION="us-central1"               # Region (e.g., us-central1)
-export SERVICE_NAME="chatwoot-cea"        # Cloud Run Service Name
-export DB_INSTANCE_NAME="chatwoot-db"     # Cloud SQL Instance Name
-export REDIS_NAME="chatwoot-redis"        # Redis Instance Name
-export REPO_NAME="chatwoot-repo"          # Artifact Registry Repository Name
-
+export PROJECT_ID="clever-obelisk-277705" \
+export REGION="us-central1" \
+export SERVICE_NAME="chatwoot-cea" \
+export DB_INSTANCE_NAME="chatwoot-db" \
+export REDIS_NAME="chatwoot-redis" \
+export REPO_NAME="chatwoot-repo"
 # Set the active project
 gcloud config set project $PROJECT_ID
 ```
