@@ -80,8 +80,8 @@ const handleVerification = async () => {
         uid: response.headers.uid,
       };
 
-      // Store in cookies for auth
-      document.cookie = `cw_d_session_info=${encodeURIComponent(JSON.stringify(authData))}; path=/; SameSite=Lax`;
+      // Store in cookies for auth (SameSite=None for iframe embedding)
+      document.cookie = `cw_d_session_info=${encodeURIComponent(JSON.stringify(authData))}; path=/; SameSite=None; Secure`;
 
       // Redirect to dashboard
       window.location.href = '/app/';
