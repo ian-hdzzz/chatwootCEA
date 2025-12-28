@@ -13,7 +13,13 @@ import {
   CHATWOOT_SET_USER,
 } from '../../constants/appEvents';
 
-Cookies.defaults = { sameSite: 'Lax' };
+// Cookie defaults for iframe embedding support
+// In production (HTTPS), use SameSite=None with Secure for cross-origin iframes
+// In development (HTTP), use Lax since SameSite=None requires Secure
+const isSecureContext = window.location.protocol === 'https:';
+Cookies.defaults = isSecureContext
+  ? { sameSite: 'None', secure: true }
+  : { sameSite: 'Lax' };
 
 export const getLoadingStatus = state => state.fetchAPIloadingStatus;
 export const setLoadingStatus = (state, status) => {
